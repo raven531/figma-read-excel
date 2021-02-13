@@ -1,0 +1,23 @@
+<h2>Change Banner By Multiple Language</h2><button id="submit">Start</button><script>// document.getElementById('create').onclick = () => {
+  //   const textbox = document.getElementById('count');
+  //   const count = parseInt(textbox.value, 10);
+  //   parent.postMessage({ pluginMessage: { type: 'create-rectangles', count } }, '*')
+  // }
+
+  // document.getElementById('cancel').onclick = () => {
+  //   parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
+  // }
+
+  let receive
+  document.getElementById('submit').onclick = async () => {
+    await fetch('https://jsonplaceholder.typicode.com/todos/1')
+      .then(response => response.json())
+      .then(json => console.log(json))
+    // alert("start...")
+    // const spreadsheetId = '10WDbAPAY7Xl5DT36VuMheTPTTpqx9x0C5sDCnh4BGps'
+    // const parser = new PublicGoogleSheetsParser()
+    // await parser.parse(spreadsheetId).then((items) => {
+    //   // items should be [{ a: 1, b: 2, c: 3 },{ a: 4, b: 5, c: 6 },{ a: 7, b: 8, c: 9 }]
+    //   parent.postMessage({ pluginMessage: items }, '*')
+    // })
+  }</script>

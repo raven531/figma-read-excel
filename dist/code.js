@@ -1,0 +1,1 @@
+figma.showUI(__html__),figma.ui.onmessage=g=>{console.log("msg: ",g),figma.closePlugin()};

@@ -1,0 +1,7 @@
+{
+  "name": "figma-ui",
+  "id": "942048822590773005",
+  "api": "1.0.0",
+  "main": "dist/code.js",
+  "ui": "dist/ui.html"
+}
