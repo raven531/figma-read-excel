@@ -1,8 +1,14 @@
 <h2>Change Banner By Multiple Language</h2>
 
 <button id="submit">Start</button>
-
+<script src="https://cdn.jsdelivr.net/npm/drive-db"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.min.js" integrity="sha512-Bkf3qaV86NxX+7MyZnLPWNt0ZI7/OloMlRo8z8KPIEUXssbVwB1E0bWVeCvYHjnSPwh4uuqDryUnRdcUw6FoTg==" crossorigin="anonymous"></script>
 <script>
+  (async () => {
+    const data = await drive("1fvz34wY6phWDJsuIneqvOoZRPfo6CfJyPg1BYgHt59k") 
+    console.log(data)
+  })()
+
 
   let receive
   document.getElementById('submit').onclick = async () => {
