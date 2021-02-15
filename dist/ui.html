@@ -1,12 +1,31 @@
-<h2>Change Banner By Multiple Language</h2><button id="submit">Start</button><script src="https://cdn.jsdelivr.net/npm/drive-db"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.min.js" integrity="sha512-Bkf3qaV86NxX+7MyZnLPWNt0ZI7/OloMlRo8z8KPIEUXssbVwB1E0bWVeCvYHjnSPwh4uuqDryUnRdcUw6FoTg==" crossorigin="anonymous"></script><script>(async () => {
-    const data = await drive("1fvz34wY6phWDJsuIneqvOoZRPfo6CfJyPg1BYgHt59k") 
-    console.log(data)
-  })()
+<h3>Change Banner By Multiple Language</h3><input type="file" title="選擇檔案" id="file_input"> <button id="submit">Start</button><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script><script>const wsName = "開銷"
 
+  const fileInput = document.getElementById("file_input")
+  let fileReader = new FileReader()
+  fileInput.addEventListener('change', (event) => {
+    const files = event.target.files;
+    const file = files[0]
 
-  let receive
-  document.getElementById('submit').onclick = async () => {
-    await fetch('https://jsonplaceholder.typicode.com/todos/1')
-      .then(response => response.json())
-      .then(json => console.log(json))
+    fileReader.readAsBinaryString(file)
+  })
+
+  let rowData = [];
+  fileReader.addEventListener("load", function(event) {
+    let data = event.target.result; //array buffer
+    let wb = XLSX.read(data, {type: "binary"});
+    
+    wb.SheetNames.forEach(function(sheetName){
+      if (sheetName === wsName) {
+        let rowObject = XLSX.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
+        // console.log(rowObject)
+        rowData = rowObject;
+      } 
+    })
+  })
+
+  document.getElementById('submit').onclick = () => {
+    // await fetch('https://jsonplaceholder.typicode.com/todos/1')
+    //   .then(response => response.json())
+    //   .then(json => console.log(json))
+    parent.postMessage({ pluginMessage: rowData }, '*')
   }</script>
