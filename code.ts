@@ -1,6 +1,107 @@
+interface Banner {
+  name: string
+  region: string
+  text: string
+  fontStyle: string
+}
+
 figma.showUI(__html__);
 
-figma.ui.onmessage = msg => {
-  console.log("msg: ", msg)
+figma.ui.onmessage = async msg => {
+
+  await figma.loadFontAsync({ family: "Yu Gothic UI", style: "Regular" })
+
+  let data = serialize(msg)
+
+  for (const node of figma.currentPage.selection) {
+    switch (node.name) {
+      case "主標":
+        let mainTitle = <PageNode>figma.getNodeById(node.id);
+        for (let child of mainTitle.children) {
+
+          switch (child.name) {
+            case "cn":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "th":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "mm":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "vn":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "id":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "en":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+          }
+        }
+        break;
+      case "小標":
+        let subTitle = <PageNode>figma.getNodeById(node.id);
+        for (let child of subTitle.children) {
+          switch (child.name) {
+            case "cn":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "th":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "mm":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "vn":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "id":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+            case "en":
+              child["characters"] = findCharacter(child.name, node.name, data);
+              break
+          }
+        }
+        break
+    }
+  }
   figma.closePlugin();
+}
+
+
+function findCharacter(region: string, name: string, elements: Banner[]): string {
+  return elements.find(function (item) {
+    return item.name === name && item.region === region
+  }).text
+}
+
+function serialize(data: []): Banner[] {
+  let banner: Banner[] = [];
+  for (let d of data) {
+    const stringify = JSON.stringify(d)
+    const obj = JSON.parse(stringify)
+
+    switch (obj.Name) {
+      case "主標":
+        banner.unshift({
+          name: obj.Name,
+          region: obj.Region,
+          text: obj.Text,
+          fontStyle: obj.FontStyle
+        })
+        break
+      case "小標":
+        banner.unshift({
+          name: obj.Name,
+          region: obj.Region,
+          text: obj.Text,
+          fontStyle: obj.FontStyle
+        })
+        break
+    }
+  }
+  return banner
 }

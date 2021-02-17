@@ -1,4 +1,4 @@
-<h3>Change Banner By Multiple Language</h3><input type="file" title="選擇檔案" id="file_input"> <button id="submit">Start</button><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script><script>const wsName = "開銷"
+<h3>Change Banner By Multiple Language</h3><input type="file" title="選擇檔案" id="file_input"> <button id="submit">Start</button><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script><script>const wsName = "工作表1"
 
   const fileInput = document.getElementById("file_input")
   let fileReader = new FileReader()
@@ -17,15 +17,11 @@
     wb.SheetNames.forEach(function(sheetName){
       if (sheetName === wsName) {
         let rowObject = XLSX.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
-        // console.log(rowObject)
         rowData = rowObject;
       } 
     })
   })
 
   document.getElementById('submit').onclick = () => {
-    // await fetch('https://jsonplaceholder.typicode.com/todos/1')
-    //   .then(response => response.json())
-    //   .then(json => console.log(json))
     parent.postMessage({ pluginMessage: rowData }, '*')
   }</script>
