@@ -25,9 +25,10 @@ module.exports = (env, argv) => ({
       { test: /\.(png|jpg|gif|webp|svg)$/, loader: 'url-loader' },
     ]
   },
-  
+
   // Webpack tries these extensions for you if you omit the extension like "import './file'"
-  resolve: { extensions: ['.tsx', '.ts', '.jsx', '.js'] ,
+  resolve: {
+    extensions: ['.tsx', '.ts', '.jsx', '.js'],
     fallback: {
       "https": false,
       "buffer": false,
@@ -47,10 +48,10 @@ module.exports = (env, argv) => ({
   },
   plugins: [
     new HtmlWebpackPlugin({
-        template: 'ui.html',
-        filename: './ui.html',
-        inlineSource: '.(js)$',
-        chunks: ['ui'],
+      template: 'ui.html',
+      filename: './ui.html',
+      inlineSource: '.(js)$',
+      chunks: ['ui'],
     }),
     new HtmlWebpackInlineSourcePlugin(HtmlWebpackPlugin)
   ]

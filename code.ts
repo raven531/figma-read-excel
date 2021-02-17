@@ -1,3 +1,5 @@
+import { writeFileSync } from "fs"
+
 interface Banner {
   name: string
   region: string
@@ -5,72 +7,91 @@ interface Banner {
   fontStyle: string
 }
 
-figma.showUI(__html__);
+figma.showUI(__html__, {
+  width: 480,
+  height: 240
+});
 
 figma.ui.onmessage = async msg => {
+  if (msg === "export") {
+    exportImage()
+  }
+  else {
+    await figma.loadFontAsync({ family: "Yu Gothic UI", style: "Regular" })
 
-  await figma.loadFontAsync({ family: "Yu Gothic UI", style: "Regular" })
+    let data = serialize(msg)
 
-  let data = serialize(msg)
-
-  for (const node of figma.currentPage.selection) {
-    switch (node.name) {
-      case "主標":
-        let mainTitle = <PageNode>figma.getNodeById(node.id);
-        for (let child of mainTitle.children) {
-
-          switch (child.name) {
-            case "cn":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "th":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "mm":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "vn":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "id":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "en":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
+    for (const node of figma.currentPage.selection) {
+      switch (node.name) {
+        case "主標":
+          let mainTitle = <PageNode>figma.getNodeById(node.id);
+          for (let child of mainTitle.children) {
+            switch (child.name) {
+              case "cn":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "th":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "mm":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "vn":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "id":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "en":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+            }
           }
-        }
-        break;
-      case "小標":
-        let subTitle = <PageNode>figma.getNodeById(node.id);
-        for (let child of subTitle.children) {
-          switch (child.name) {
-            case "cn":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "th":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "mm":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "vn":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "id":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
-            case "en":
-              child["characters"] = findCharacter(child.name, node.name, data);
-              break
+          break;
+        case "小標":
+          let subTitle = <PageNode>figma.getNodeById(node.id);
+          for (let child of subTitle.children) {
+            switch (child.name) {
+              case "cn":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "th":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "mm":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "vn":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "id":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+              case "en":
+                child["characters"] = findCharacter(child.name, node.name, data);
+                break
+            }
           }
-        }
-        break
+          break
+      }
     }
   }
   figma.closePlugin();
 }
 
+function exportImage() {
+  let setting: ExportSettingsImage
+
+  for (let node of figma.currentPage.selection) {
+    node.exportAsync(setting)
+      .then(res => {
+        // figma.ui.postMessage(res) //send to ui
+      })
+      .catch(err => {
+        console.log("Error: ", err)
+      })
+  }
+}
 
 function findCharacter(region: string, name: string, elements: Banner[]): string {
   return elements.find(function (item) {

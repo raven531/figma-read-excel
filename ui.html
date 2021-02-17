@@ -1,8 +1,12 @@
 <h3>Change Banner By Multiple Language</h3>
 <input type="file" title="選擇檔案" id="file_input">
 <button id="submit">Start</button>
+<button id="export">Export</button>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.js"
+  integrity="sha512-vRqhAr2wsn+/cSsyz80psBbCcqzz2GTuhGk3bq3dAyytz4J/8XwFqMjiAGFBj+WM95lHBJ9cDf87T3P8yMrY7A=="
+  crossorigin="anonymous"></script>
 <script>
 
   const wsName = "工作表1"
@@ -17,20 +21,31 @@
   })
 
   let rowData = [];
-  fileReader.addEventListener("load", function(event) {
+  fileReader.addEventListener("load", function (event) {
     let data = event.target.result; //array buffer
-    let wb = XLSX.read(data, {type: "binary"});
-    
-    wb.SheetNames.forEach(function(sheetName){
+    let wb = XLSX.read(data, { type: "binary" });
+
+    wb.SheetNames.forEach(function (sheetName) {
       if (sheetName === wsName) {
         let rowObject = XLSX.utils.sheet_to_row_object_array(wb.Sheets[sheetName]);
         rowData = rowObject;
-      } 
+      }
     })
   })
 
   document.getElementById('submit').onclick = () => {
-    parent.postMessage({ pluginMessage: rowData }, '*')
+    parent.postMessage({ pluginMessage: rowData }, '*');
+  }
+
+  document.getElementById('export').onclick = () => {
+    parent.postMessage({ pluginMessage: "export" }, '*');
+  }
+
+  window.onmessage = event => {
+    const data = event.data.pluginMessage;
+    // console.log(data)
+    let blob = new Blob([data], { type: "octet-binary" })
+    console.log(blob)
   }
 
 </script>
