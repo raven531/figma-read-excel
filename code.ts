@@ -1,4 +1,3 @@
-import { writeFileSync } from "fs"
 
 interface Banner {
   name: string
@@ -79,18 +78,24 @@ figma.ui.onmessage = async msg => {
   figma.closePlugin();
 }
 
-function exportImage() {
-  let setting: ExportSettingsImage
+let nodeName = "";
+
+async function exportImage() {
+  let setting: ExportSettingsImage;
+  let receive = [];
 
   for (let node of figma.currentPage.selection) {
-    node.exportAsync(setting)
+    nodeName = node.name;
+
+    await node.exportAsync(setting)
       .then(res => {
-        // figma.ui.postMessage(res) //send to ui
+        receive.push({ "name": nodeName, "buffer": res })
       })
       .catch(err => {
         console.log("Error: ", err)
       })
   }
+  figma.ui.postMessage(receive) //send to ui
 }
 
 function findCharacter(region: string, name: string, elements: Banner[]): string {
