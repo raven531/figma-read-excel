@@ -12,6 +12,10 @@ figma.showUI(__html__, {
 });
 
 figma.ui.onmessage = async msg => {
+  if (msg === "close") {
+    figma.closePlugin()
+    return
+  }
   if (msg === "export") {
     exportImage()
   }
@@ -74,8 +78,8 @@ figma.ui.onmessage = async msg => {
           break
       }
     }
+    figma.closePlugin();
   }
-  figma.closePlugin();
 }
 
 let nodeName = "";
