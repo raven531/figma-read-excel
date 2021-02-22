@@ -1,10 +1,5 @@
+import { findCharacter, serialize } from "./utils"
 
-interface Banner {
-  name: string
-  region: string
-  text: string
-  fontStyle: string
-}
 
 figma.showUI(__html__, {
   width: 480,
@@ -20,9 +15,26 @@ figma.ui.onmessage = async msg => {
     exportImage()
   }
   else {
-    await figma.loadFontAsync({ family: "Yu Gothic UI", style: "Regular" })
+    let fn: FontName;
+
+    const requireFontName = async (require: string) => {
+      await figma.listAvailableFontsAsync().
+        then(fonts => {
+          let recv = fonts.find(function (f) {
+            return f.fontName.family == require
+          })
+          fn = recv.fontName
+        })
+    }
 
     let data = serialize(msg)
+    for (let d of data) {
+      if (d.fontFamily == undefined) {
+        continue
+      }
+      await figma.loadFontAsync({ family: d.fontFamily, style: d.fontStyle })
+    }
+
 
     for (const node of figma.currentPage.selection) {
       switch (node.name) {
@@ -31,7 +43,11 @@ figma.ui.onmessage = async msg => {
           for (let child of mainTitle.children) {
             switch (child.name) {
               case "cn":
-                child["characters"] = findCharacter(child.name, node.name, data);
+                await requireFontName("Yu Gothic")
+                let result = findCharacter(child.name, node.name, data)
+                child["characters"] = result;
+                const cnTextNode = <TextNode>child;
+                cnTextNode.fontName = fn
                 break
               case "th":
                 child["characters"] = findCharacter(child.name, node.name, data);
@@ -47,6 +63,9 @@ figma.ui.onmessage = async msg => {
                 break
               case "en":
                 child["characters"] = findCharacter(child.name, node.name, data);
+                await requireFontName("Yrsa")
+                const enTextNode = <TextNode>child;
+                enTextNode.fontName = fn
                 break
             }
           }
@@ -102,36 +121,3 @@ async function exportImage() {
   figma.ui.postMessage(receive) //send to ui
 }
 
-function findCharacter(region: string, name: string, elements: Banner[]): string {
-  return elements.find(function (item) {
-    return item.name === name && item.region === region
-  }).text
-}
-
-function serialize(data: []): Banner[] {
-  let banner: Banner[] = [];
-  for (let d of data) {
-    const stringify = JSON.stringify(d)
-    const obj = JSON.parse(stringify)
-
-    switch (obj.Name) {
-      case "主標":
-        banner.unshift({
-          name: obj.Name,
-          region: obj.Region,
-          text: obj.Text,
-          fontStyle: obj.FontStyle
-        })
-        break
-      case "小標":
-        banner.unshift({
-          name: obj.Name,
-          region: obj.Region,
-          text: obj.Text,
-          fontStyle: obj.FontStyle
-        })
-        break
-    }
-  }
-  return banner
-}
