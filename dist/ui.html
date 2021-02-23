@@ -30,17 +30,18 @@
     parent.postMessage({ pluginMessage: "export" }, '*');
   }
 
-  window.onmessage = async event => {
+  window.onmessage = event => {
     const data = event.data.pluginMessage;
-
     let zip = new JSZip();
-    const folderName = "images/"
     data.forEach(d => {
+      const folderName = d["lang"]
+      zip.folder(folderName)
       let filename = d["name"].replace("*", "-")
-      zip.file(folderName + filename + ".png", d["buffer"])
+      zip.file(folderName + "/" + filename + ".png", d["buffer"])
     })
 
+    const zipName = Date.now() + "-" + "figma.zip"
     zip.generateAsync({ type: "blob", compressLevel: 9, compress: "default" }).then(function (content) {
-      saveAs(content, "example.zip");
+      saveAs(content, zipName);
     });
   }</script>

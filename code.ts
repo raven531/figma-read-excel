@@ -1,4 +1,4 @@
-import { findBanner, serialize } from "./utils"
+import { findBanner, serialize, Banner } from "./utils"
 
 figma.showUI(__html__, {
   width: 480,
@@ -8,6 +8,8 @@ figma.showUI(__html__, {
 
 let aggregateNodes: SceneNode[] = [];
 
+let downloadObj = new Object()
+
 figma.ui.onmessage = async msg => {
 
   if (msg === "export") {
@@ -16,6 +18,8 @@ figma.ui.onmessage = async msg => {
   else {
 
     let data = serialize(msg)
+    recomposeRow(data)
+
     for (let d of data) {
       if (d.fontFamily == undefined) {
         continue
@@ -23,59 +27,18 @@ figma.ui.onmessage = async msg => {
       await figma.loadFontAsync({ family: d.fontFamily, style: d.fontStyle })
     }
 
-    for (const node of figma.currentPage.selection) {
-      switch (node.name) {
-        case "主標":
-          const mainTitle = <PageNode>figma.getNodeById(node.id)
-          mainTitle.children.forEach(res => {
-            switch (res.name) {
-              case "cn":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "en":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "th":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "mm":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "vn":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "id":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
+    for (let d of data) {
+      const selection = figma.currentPage.selection;
+      selection.forEach(res => {
+        if (d.name == res.name) { //主標or 小標
+          const titleNode = <PageNode>figma.getNodeById(res.id);
+          titleNode.children.forEach(childNode => {
+            if (childNode.name == d.region) { // region
+              aggregateNodes.unshift(nodeSettlement(childNode, d.name, data))
             }
           })
-          break
-        case "小標":
-          const subTitle = <PageNode>figma.getNodeById(node.id)
-          subTitle.children.forEach(res => {
-            switch (res.name) {
-              case "cn":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "en":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "th":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "mm":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "vn":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-              case "id":
-                aggregateNodes.unshift(nodeSettlement(res, node.name, data))
-                break
-            }
-          })
-          break
-      }
+        }
+      })
     }
     // figma.closePlugin();
   }
@@ -94,19 +57,38 @@ let nodeName = "";
 
 async function exportImage() {
   let setting: ExportSettingsImage;
+
   let receive = [];
 
-  for (let child of figma.currentPage.children) {
-    if (child.name === "預覽") {
-      let frameNode = <InstanceNode>figma.getNodeById(child.id)
-      for (let fn of frameNode.children) {
-        nodeName = fn.name;
-        await fn.exportAsync(setting)
-          .then(res => {
-            receive.push({ "name": nodeName, "buffer": res })
+  const storeBuffer = async (lang: string) => {
+    for (let child of figma.currentPage.children) {
+      if (child.name === "預覽") {
+        let frameNode = <InstanceNode>figma.getNodeById(child.id)
+        for (let fn of frameNode.children) {
+          nodeName = fn.name;
+          await fn.exportAsync(setting).then(res => {
+            receive.push({ "lang": lang, "name": nodeName, "buffer": res })
           })
+        }
       }
     }
   }
+
+  for (const [k, v] of Object.entries(downloadObj)) {
+    let filter = aggregateNodes.filter(node => node.name === k)
+    filter.forEach(res => { res.visible = true })
+    await storeBuffer(k).then(() => console.log("store: ", k, "buffer"))
+    filter.forEach(res => { res.visible = false })
+  }
+
   figma.ui.postMessage(receive) //send to ui
+}
+
+function recomposeRow(data: Banner[]) {
+  for (let r of data) {
+    if (downloadObj[r.region] == undefined) {
+      downloadObj[r.region] = []
+    }
+    downloadObj[r.region].push(r.name)
+  }
 }

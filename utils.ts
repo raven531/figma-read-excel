@@ -1,5 +1,5 @@
 
-interface Banner {
+export interface Banner {
   name: string
   region: string
   text: string
