@@ -6,17 +6,7 @@ figma.showUI(__html__, {
 });
 
 
-// let fn: FontName;
-
-// const requireFontName = async (require: string) => {
-//   await figma.listAvailableFontsAsync().
-//     then(fonts => {
-//       let recv = fonts.find(function (f) {
-//         return f.fontName.family == require
-//       })
-//       fn = recv.fontName
-//     })
-// }
+let aggregateNodes: SceneNode[] = [];
 
 figma.ui.onmessage = async msg => {
 
@@ -33,7 +23,6 @@ figma.ui.onmessage = async msg => {
       await figma.loadFontAsync({ family: d.fontFamily, style: d.fontStyle })
     }
 
-    let aggregateNodes: SceneNode[] = [];
     for (const node of figma.currentPage.selection) {
       switch (node.name) {
         case "主標":
@@ -88,7 +77,7 @@ figma.ui.onmessage = async msg => {
           break
       }
     }
-    figma.closePlugin();
+    // figma.closePlugin();
   }
 }
 
@@ -107,16 +96,17 @@ async function exportImage() {
   let setting: ExportSettingsImage;
   let receive = [];
 
-  for (let node of figma.currentPage.selection) {
-    nodeName = node.name;
-
-    await node.exportAsync(setting)
-      .then(res => {
-        receive.push({ "name": nodeName, "buffer": res })
-      })
-      .catch(err => {
-        console.log("Error: ", err)
-      })
+  for (let child of figma.currentPage.children) {
+    if (child.name === "預覽") {
+      let frameNode = <InstanceNode>figma.getNodeById(child.id)
+      for (let fn of frameNode.children) {
+        nodeName = fn.name;
+        await fn.exportAsync(setting)
+          .then(res => {
+            receive.push({ "name": nodeName, "buffer": res })
+          })
+      }
+    }
   }
   figma.ui.postMessage(receive) //send to ui
 }
