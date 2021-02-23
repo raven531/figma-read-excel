@@ -7,10 +7,10 @@ interface Banner {
   fontStyle: string
 }
 
-export function findCharacter(region: string, name: string, elements: Banner[]): string {
+export function findBanner(region: string, name: string, elements: Banner[]): Banner {
   return elements.find(function (item) {
     return item.name === name && item.region === region
-  }).text
+  })
 }
 
 export function serialize(data: []): Banner[] {
