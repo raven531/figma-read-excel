@@ -45,7 +45,7 @@
     parent.postMessage({ pluginMessage: "export" }, '*');
   }
 
-  window.onmessage = async event => {
+  window.onmessage = event => {
     const data = event.data.pluginMessage;
 
     let zip = new JSZip();

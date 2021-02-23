@@ -94,18 +94,31 @@ let nodeName = "";
 
 async function exportImage() {
   let setting: ExportSettingsImage;
+
   let receive = [];
 
-  for (let child of figma.currentPage.children) {
-    if (child.name === "預覽") {
-      let frameNode = <InstanceNode>figma.getNodeById(child.id)
-      for (let fn of frameNode.children) {
-        nodeName = fn.name;
-        await fn.exportAsync(setting)
-          .then(res => {
-            receive.push({ "name": nodeName, "buffer": res })
+  const storeBuffer = async (lang: string) => {
+    for (let child of figma.currentPage.children) {
+      if (child.name === "預覽") {
+        let frameNode = <InstanceNode>figma.getNodeById(child.id)
+        for (let fn of frameNode.children) {
+          nodeName = fn.name;
+          await fn.exportAsync(setting).then(res => {
+            receive.push({ "lang": lang, "name": nodeName, "buffer": res })
           })
+        }
       }
+    }
+  }
+
+  for (let i = 0; i < (aggregateNodes.length / 2); i++) {
+    switch (aggregateNodes[i].name) {
+      case "cn":
+        let filter = aggregateNodes.filter(node => node.name === "cn")
+        filter.forEach(res => { res.visible = true })
+        storeBuffer("cn").then(() => console.log("insert cn"))
+        filter.forEach(res => { res.visible = false })
+        break
     }
   }
   figma.ui.postMessage(receive) //send to ui
