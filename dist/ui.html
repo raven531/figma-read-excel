@@ -1,4 +1,4 @@
-<h3>Change Banner By Multiple Language</h3><input type="file" title="選擇檔案" id="file_input"> <button id="submit">Start</button> <button id="export">Export</button><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.js" integrity="sha512-18QiVdJv36r1ryb5mr1lFpm4wZMORhvGgvz0mHQllOmx3NmSZkYwWuDcecFByaRVWqiQ0F/FZC5pCBMuy8IfkQ==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.js" integrity="sha512-B+gr+zLWg81qxVwvtYwKrmjvQtZKD/GGFF7jD80OfzbqFw+NsbS5faEqpCO7Q7oRw1bYi0+WLJf54j8Vm7NADw==" crossorigin="anonymous"></script><script>const wsName = "工作表1"
+<h3>Change Banner By Multiple Language</h3><input type="file" title="選擇檔案" id="file_input"> <button id="submit">Start</button> <button id="export" hidden>Export</button><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.js" integrity="sha512-18QiVdJv36r1ryb5mr1lFpm4wZMORhvGgvz0mHQllOmx3NmSZkYwWuDcecFByaRVWqiQ0F/FZC5pCBMuy8IfkQ==" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.js" integrity="sha512-B+gr+zLWg81qxVwvtYwKrmjvQtZKD/GGFF7jD80OfzbqFw+NsbS5faEqpCO7Q7oRw1bYi0+WLJf54j8Vm7NADw==" crossorigin="anonymous"></script><script>const wsName = "工作表1"
 
   const fileInput = document.getElementById("file_input")
   let fileReader = new FileReader()
@@ -32,6 +32,16 @@
 
   window.onmessage = event => {
     const data = event.data.pluginMessage;
+    if (data === "success") {
+      receiveModifyMsg()
+    } else {
+      zipper(data)
+    }
+  }
+
+  // window.addEventListener("message", receiveModifyMsg)
+
+  function zipper(data) {
     let zip = new JSZip();
     data.forEach(d => {
       const folderName = d["lang"]
@@ -44,4 +54,9 @@
     zip.generateAsync({ type: "blob", compressLevel: 9, compress: "default" }).then(function (content) {
       saveAs(content, zipName);
     });
+  }
+
+  function receiveModifyMsg() {
+    alert("success modify")
+    document.getElementById("export").hidden = false;
   }</script>

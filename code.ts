@@ -40,6 +40,7 @@ figma.ui.onmessage = async msg => {
         }
       })
     }
+    figma.ui.postMessage("success")
     // figma.closePlugin();
   }
 }

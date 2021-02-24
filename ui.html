@@ -1,7 +1,7 @@
 <h3>Change Banner By Multiple Language</h3>
 <input type="file" title="選擇檔案" id="file_input">
 <button id="submit">Start</button>
-<button id="export">Export</button>
+<button id="export" hidden>Export</button>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
@@ -47,6 +47,14 @@
 
   window.onmessage = event => {
     const data = event.data.pluginMessage;
+    if (data === "success") {
+      receiveModifyMsg()
+    } else {
+      zipper(data)
+    }
+  }
+
+  function zipper(data) {
     let zip = new JSZip();
     data.forEach(d => {
       const folderName = d["lang"]
@@ -60,5 +68,11 @@
       saveAs(content, zipName);
     });
   }
+
+  function receiveModifyMsg() {
+    alert("success modify")
+    document.getElementById("export").hidden = false;
+  }
+
 
 </script>
