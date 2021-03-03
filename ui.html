@@ -1,7 +1,16 @@
-<h3>Change Banner By Multiple Language</h3>
+<h4>Change Banner By Multiple Language</h4>
 <input type="file" title="選擇檔案" id="file_input">
+<br />
 <button id="submit">Start</button>
 <button id="export" hidden>Export</button>
+
+<div class="progress hide" id="progress_bar">
+  <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0"
+    aria-valuemax="100" style="width: 40%;">
+  </div>
+</div>
+<br />
+<p class="hide" id="result"></p>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
@@ -10,6 +19,17 @@
   crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.js"
   integrity="sha512-B+gr+zLWg81qxVwvtYwKrmjvQtZKD/GGFF7jD80OfzbqFw+NsbS5faEqpCO7Q7oRw1bYi0+WLJf54j8Vm7NADw=="
+  crossorigin="anonymous"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
   crossorigin="anonymous"></script>
 <script>
 
@@ -64,7 +84,14 @@
     })
 
     const zipName = Date.now() + "-" + "figma.zip"
-    zip.generateAsync({ type: "blob", compressLevel: 9, compress: "default" }).then(function (content) {
+    zip.generateAsync({ type: "blob", compressLevel: 9, compress: "default" }, function updateCallback(metadata) {
+      var msg = "progression : " + metadata.percent.toFixed(2) + " %";
+      if (metadata.currentFile) {
+        msg += ", current file = " + metadata.currentFile;
+      }
+      showMessage(msg);
+      updatePercent(metadata.percent | 0);
+    }).then(function (content) {
       saveAs(content, zipName);
     });
   }
@@ -74,5 +101,23 @@
     document.getElementById("export").hidden = false;
   }
 
-
+  function updatePercent(percent) {
+    $("#progress_bar").removeClass("hide")
+      .find(".progress-bar")
+      .attr("aria-valuenow", percent)
+      .css({
+        width: percent + "%"
+      });
+  }
+  function resetMessage() {
+    $("#result")
+      .removeClass()
+      .text("");
+  }
+  function showMessage(text) {
+    resetMessage();
+    $("#result")
+      .addClass("alert alert-success")
+      .text(text);
+  }
 </script>

@@ -1,8 +1,8 @@
 import { findBanner, serialize, Banner } from "./utils"
 
 figma.showUI(__html__, {
-  width: 480,
-  height: 240
+  width: 500,
+  height: 340
 });
 
 let downloadObj = new Object()
