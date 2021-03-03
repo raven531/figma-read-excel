@@ -5,9 +5,6 @@ figma.showUI(__html__, {
   height: 240
 });
 
-
-let aggregateNodes: SceneNode[] = [];
-
 let downloadObj = new Object()
 
 figma.ui.onmessage = async msg => {
@@ -20,6 +17,7 @@ figma.ui.onmessage = async msg => {
     let data = serialize(msg)
     recomposeRow(data)
 
+    //read fonts from excel
     for (let d of data) {
       if (d.fontFamily == undefined) {
         continue
@@ -27,14 +25,27 @@ figma.ui.onmessage = async msg => {
       await figma.loadFontAsync({ family: d.fontFamily, style: d.fontStyle })
     }
 
+    //read fonts from current selected
+    for (let child of getTitleNode()) {
+      let txtNode = <TextNode>child["fontName"];
+      if (txtNode === undefined) {
+        continue
+      }
+      await figma.loadFontAsync({ family: txtNode["family"], style: txtNode["style"] })
+    }
+
+
     for (let d of data) {
-      const selection = figma.currentPage.selection;
-      selection.forEach(res => {
+      if (d.text === undefined) {
+        continue
+      }
+
+      figma.currentPage.selection.forEach(res => {
         if (d.name == res.name) { //主標or 小標
           const titleNode = <PageNode>figma.getNodeById(res.id);
           titleNode.children.forEach(childNode => {
             if (childNode.name == d.region) { // region
-              aggregateNodes.unshift(nodeSettlement(childNode, d.name, data))
+              nodeSettlement(childNode, d.name, data)
             }
           })
         }
@@ -76,7 +87,7 @@ async function exportImage() {
   }
 
   for (const [k, v] of Object.entries(downloadObj)) {
-    let filter = aggregateNodes.filter(node => node.name === k)
+    let filter = getTitleNode().filter(node => node.name === k)
     filter.forEach(res => { res.visible = true })
     await storeBuffer(k).then(() => console.log("store: ", k, "buffer"))
     filter.forEach(res => { res.visible = false })
@@ -92,4 +103,16 @@ function recomposeRow(data: Banner[]) {
     }
     downloadObj[r.region].push(r.name)
   }
+}
+
+function getTitleNode(): SceneNode[] {
+  const selection = figma.currentPage.selection;
+  let aggTxT = []
+  selection.forEach(res => {
+    if (res.name === "主標" || res.name === "小標") {
+      let titleNode = <PageNode>figma.getNodeById(res.id)
+      titleNode.children.forEach(child => { aggTxT.unshift(child) })
+    }
+  })
+  return aggTxT
 }
