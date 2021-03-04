@@ -5,6 +5,11 @@ figma.showUI(__html__, {
   height: 340
 });
 
+const settlement = "設置"
+const preview = "預覽"
+const mainTitle = "主標"
+const subTitle = "小標"
+
 let downloadObj = new Object()
 
 figma.ui.onmessage = async msg => {
@@ -40,17 +45,23 @@ figma.ui.onmessage = async msg => {
         continue
       }
 
-      figma.currentPage.selection.forEach(res => {
-        if (d.name == res.name) { //主標or 小標
-          const titleNode = <PageNode>figma.getNodeById(res.id);
-          titleNode.children.forEach(childNode => {
-            if (childNode.name == d.region) { // region
-              nodeSettlement(childNode, d.name, data)
+      figma.currentPage.children.forEach(res => {
+        if (res.name === settlement) {
+          const setNodes = <PageNode>figma.getNodeById(res.id)
+          setNodes.children.forEach(node => {
+            if (d.name == node.name) { //主標or 小標
+              const titleNode = <PageNode>figma.getNodeById(node.id);
+              titleNode.children.forEach(childNode => {
+                if (childNode.name == d.region) { // region
+                  nodeSettlement(childNode, d.name, data)
+                }
+              })
             }
           })
         }
       })
     }
+
     figma.ui.postMessage("success")
     // figma.closePlugin();
   }
@@ -74,7 +85,7 @@ async function exportImage() {
 
   const storeBuffer = async (lang: string) => {
     for (let child of figma.currentPage.children) {
-      if (child.name === "預覽") {
+      if (child.name === preview) {
         let frameNode = <InstanceNode>figma.getNodeById(child.id)
         for (let fn of frameNode.children) {
           nodeName = fn.name;
@@ -106,12 +117,17 @@ function recomposeRow(data: Banner[]) {
 }
 
 function getTitleNode(): SceneNode[] {
-  const selection = figma.currentPage.selection;
   let aggTxT = []
-  selection.forEach(res => {
-    if (res.name === "主標" || res.name === "小標") {
-      let titleNode = <PageNode>figma.getNodeById(res.id)
-      titleNode.children.forEach(child => { aggTxT.unshift(child) })
+
+  figma.currentPage.children.forEach(res => {
+    if (res.name === settlement) {
+      const setNodes = <PageNode>figma.getNodeById(res.id)
+      setNodes.children.forEach(res => {
+        if (res.name === mainTitle || res.name === subTitle) {
+          let titleNode = <PageNode>figma.getNodeById(res.id)
+          titleNode.children.forEach(child => { aggTxT.unshift(child) })
+        }
+      })
     }
   })
   return aggTxT
