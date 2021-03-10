@@ -4,6 +4,10 @@
 <button id="submit">Start</button>
 <button id="export" hidden>Export</button>
 
+<div id="ame" hidden>
+  <img src="https://walfiegif.files.wordpress.com/2020/11/out-transparent-39.gif?w=120">
+</div>
+
 <div class="progress hide" id="progress_bar">
   <div class="progress-bar progress-bar-striped active" role="progressbar" aria-valuenow="40" aria-valuemin="0"
     aria-valuemax="100" style="width: 40%;">
@@ -62,6 +66,8 @@
   }
 
   document.getElementById('export').onclick = () => {
+    let gif = document.getElementById("ame");
+    gif.hidden = false
     parent.postMessage({ pluginMessage: "export" }, '*');
   }
 
@@ -92,6 +98,8 @@
       showMessage(msg);
       updatePercent(metadata.percent | 0);
     }).then(function (content) {
+      let gif = document.getElementById("ame");
+      gif.hidden = true
       saveAs(content, zipName);
     });
   }

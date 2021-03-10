@@ -2,7 +2,7 @@ import { findBanner, serialize, Banner } from "./utils"
 
 figma.showUI(__html__, {
   width: 500,
-  height: 340
+  height: 450
 });
 
 const settlement = "設置"
@@ -13,7 +13,6 @@ const subTitle = "小標"
 let downloadObj = new Object()
 
 figma.ui.onmessage = async msg => {
-
   if (msg === "export") {
     exportImage()
   }
@@ -72,6 +71,8 @@ function nodeSettlement(childNode, titleType, excelData): SceneNode {
   let b = findBanner(childNode.name, titleType, excelData);
   childNode["characters"] = b.text //change banner title
   let cnTextNode = <TextNode>childNode;
+  cnTextNode.letterSpacing = <LetterSpacing>{ value: Number(b.letterSpacing), unit: "PERCENT" }
+  cnTextNode.fontSize = Number(b.fontSize)
   cnTextNode.fontName = { family: b.fontFamily, style: b.fontStyle }
   return childNode
 }
@@ -97,10 +98,17 @@ async function exportImage() {
     }
   }
 
-  for (const [k, v] of Object.entries(downloadObj)) {
+  let lastElement = Object.keys(downloadObj).pop();
+
+  for (const [k, _] of Object.entries(downloadObj)) {
     let filter = getTitleNode().filter(node => node.name === k)
     filter.forEach(res => { res.visible = true })
-    await storeBuffer(k).then(() => console.log("store: ", k, "buffer"))
+    // pass store buffer message to UI
+    await storeBuffer(k).then(() => { console.log(k) })
+
+    if (k === lastElement) { //prevent invisibility the last object
+      continue
+    }
     filter.forEach(res => { res.visible = false })
   }
 

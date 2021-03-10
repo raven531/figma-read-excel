@@ -5,6 +5,8 @@ export interface Banner {
   text: string
   fontFamily: string
   fontStyle: string
+  fontSize: number
+  letterSpacing: number
 }
 
 export function findBanner(region: string, name: string, elements: Banner[]): Banner {
@@ -26,7 +28,9 @@ export function serialize(data: []): Banner[] {
           region: obj.Region,
           text: obj.Text,
           fontFamily: obj.FontFamily,
-          fontStyle: obj.FontStyle
+          fontStyle: obj.FontStyle,
+          fontSize: obj.FontSize,
+          letterSpacing: obj.LetterSpacing.split("%")[0]
         })
         break
       case "小標":
@@ -35,7 +39,9 @@ export function serialize(data: []): Banner[] {
           region: obj.Region,
           text: obj.Text,
           fontFamily: obj.FontFamily,
-          fontStyle: obj.FontStyle
+          fontStyle: obj.FontStyle,
+          fontSize: obj.FontSize,
+          letterSpacing: obj.LetterSpacing.split("%")[0]
         })
         break
     }
